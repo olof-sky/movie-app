@@ -1,3 +1,6 @@
+/js/config.js
+README.md
+
 
 ### Linux ###
 *~
@@ -49,7 +52,6 @@ Temporary Items
 *.icloud
 
 ### Windows ###
-/js/config.js
 
 # Windows thumbnail cache files
 Thumbs.db

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie app</title>
+    <script src="./js/config.js"></script>
+    <script src="./js/app.js" defer></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <img name="logo" />
+      <span>
+        <select name="search-type" id="search-type">
+          <option value="Movie">Movie</option>
+          <option value="Series">Series</option>
+          <option value="Episode">Episode</option>
+        </select>
+        <input class="search" type="text" placholder="Search movie" />
+        <button class="search" type="submit">search</button>
+      </span>
+      <nav>
+        <ul>
+          <li>
+            <button name="movies-btn" class="nav-active">
+              <h3>movies</h3>
+            </button>
+          </li>
+          <li>
+            <button name="watchlist-btn"><h3>watchlist</h3></button>
+            <div></div>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section>
+        <h1>What do you want to watch</h1>
+        <div class="circle-logo">
+          <div class="circle-ring" id="red-circle"></div>
+          <div class="circle-ring" id="yellow-circle"></div>
+          <div class="circle-ring" id="blue-circle"></div>
+        </div>
+      </section>
+      <h2>Featured content</h2>
+      <section class="movie-list">
+        <div class="card">
+          <img src="" />
+        </div>
+      </section>
+    </main>
+    <footer></footer>
+  </body>
+</html>
