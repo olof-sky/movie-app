@@ -12,24 +12,15 @@
   <body>
     <header>
       <img name="logo" />
-      <span>
-        <select name="search-type" id="search-type">
-          <option value="Movie">Movie</option>
-          <option value="Series">Series</option>
-          <option value="Episode">Episode</option>
-        </select>
-        <input class="search" type="text" placholder="Search movie" />
-        <button class="search" type="submit">search</button>
-      </span>
       <nav>
         <ul>
           <li>
             <button name="movies-btn" class="nav-active">
-              <h3>movies</h3>
+              <h4>movies</h4>
             </button>
           </li>
           <li>
-            <button name="watchlist-btn"><h3>watchlist</h3></button>
+            <button name="watchlist-btn"><h4>watchlist</h4></button>
             <div></div>
           </li>
         </ul>
@@ -38,6 +29,15 @@
     <main>
       <section>
         <h1>What do you want to watch</h1>
+        <span>
+          <select name="search-type" id="search-type">
+            <option value="Movie">Movie</option>
+            <option value="Series">Series</option>
+            <option value="Episode">Episode</option>
+          </select>
+          <input class="search" type="text" placholder="Search movie" />
+          <button class="search" type="submit">search</button>
+        </span>
         <div class="circle-logo">
           <div class="circle-ring" id="red-circle"></div>
           <div class="circle-ring" id="yellow-circle"></div>
@@ -45,11 +45,7 @@
         </div>
       </section>
       <h2>Featured content</h2>
-      <section class="movie-list">
-        <div class="card">
-          <img src="" />
-        </div>
-      </section>
+      <section class="movie-list"></section>
     </main>
     <footer></footer>
   </body>
