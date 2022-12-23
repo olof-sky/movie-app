@@ -105,11 +105,11 @@ function toggleFavorite(id) {
   const isListedFavorite = isFavorite(id);
   if (isListedFavorite) {
     App.removeFavorite(id, button);
-    card.classList.remove("favorite");
+    button.classList.remove("favorite");
     return false;
   } else {
     App.createFavorite(id, button);
-    card.classList.add("favorite");
+    button.classList.add("favorite");
     return true;
   }
 }
@@ -141,8 +141,11 @@ function resetActiveCards(element, isListedFavorite) {
   });
 }
 
-function setContent(movie, isActive, isListedFavorite) {
+function setContent(movie, isActive) {
   console.log(movie);
+  const isListedFavorite = isFavorite(movie.imdbID);
+  console.log(isListedFavorite);
+  let buttonClass = isListedFavorite ? "favorite-btn favorite" : "favorite-btn";
   const img =
     movie.Poster == "N/A" ? "/assets/noImgAvailable.jpg" : movie.Poster;
   const rating = movie.imdbRating;
@@ -166,11 +169,9 @@ function setContent(movie, isActive, isListedFavorite) {
           <h4>⭐${rating}</h4>
         </span>
         <span class="buttons-container">
-          <button class="favorite-btn" onclick=toggleFavorite('${
-            movie.imdbID
-          }')>${
-    isListedFavorite ? "Remove favorite" : "Add to watchlist"
-  }</button>
+          <button class="${buttonClass}" onclick=toggleFavorite('${
+    movie.imdbID
+  }')>${isListedFavorite ? "Remove favorite" : "Add to watchlist"}</button>
           <button class="toggle-card" onclick="toggleCard('${
             movie.imdbID
           }')">About</button>
@@ -187,11 +188,9 @@ function setContent(movie, isActive, isListedFavorite) {
       <section>
         <span>
           <h3>${movie.Title}</h3>
-          <button class="favorite-btn" onclick=toggleFavorite('${
-            movie.imdbID
-          }')>${
-    isListedFavorite ? "Remove favorite" : "Add to watchlist"
-  }</button>
+          <button class="${buttonClass}" onclick=toggleFavorite('${
+    movie.imdbID
+  }')>${isListedFavorite ? "Remove favorite" : "Add to watchlist"}</button>
         </span>
         <span>
           <ul>

@@ -291,7 +291,7 @@ main h2 {
   background-color: var(--red-color);
 }
 
-.card.favorite .favorite-btn {
+.card .favorite-btn.favorite {
   justify-content: center;
   height: 42px;
   width: fit-content;
