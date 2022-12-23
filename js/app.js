@@ -247,6 +247,11 @@ function searchInit() {
   }
 }
 
+//TODO
+/* 
+  Add functionallity to get more pages when scrolling down
+*/
+
 App.elements.searchInput.addEventListener("input", () => {
   searchInit();
 });
