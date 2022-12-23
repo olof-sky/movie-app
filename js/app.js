@@ -70,7 +70,7 @@ function fetchDataAndCreateCard(movie) {
       return response.json();
     })
     .then((data) => {
-      App.listOfMovies.push(movie);
+      App.listOfMovies.push(data);
       createCard(data, isActive);
     })
     .catch((err) => {
@@ -142,9 +142,10 @@ function resetActiveCards(element, isListedFavorite) {
 }
 
 function setContent(movie, isActive, isListedFavorite) {
+  console.log(movie);
   const img =
     movie.Poster == "N/A" ? "/assets/noImgAvailable.jpg" : movie.Poster;
-  const rating = movie.imdbRating ? movie.imdbRating : "-";
+  const rating = movie.imdbRating;
   const type = movie.Type ? movie.Type : "-";
   const director = movie.Director ? movie.Director : "-";
   const year = movie.Year ? movie.Year : "-";
