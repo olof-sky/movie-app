@@ -54,6 +54,15 @@ ul {
 
 li {
   list-style: none;
+  text-decoration: none;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+  color: var(--white-color);
 }
 
 input {
@@ -326,7 +335,40 @@ main h2 {
   cursor: pointer;
 }
 
+.loader {
+  display: none;
+  border: 8px solid var(--soft-grey-color);
+  border-radius: 50%;
+  border-top: 8px solid var(--offwhite-color);
+  width: 80px;
+  height: 80px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+.loader.active {
+  display: block;
+}
+
 /* Animations */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes rotation-yellow {
   from {
     transform: rotate(0deg);

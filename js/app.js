@@ -12,32 +12,37 @@ const App = {
   listOfFavorites: [],
   elements: {
     body: document.body,
+    loader: document.querySelector(".loader"),
     movieListContainer: document.querySelector(".movie-list"),
     searchInput: document.querySelector(".search"),
     searchType: document.querySelector(".search-type"),
     navButtons: [...document.querySelectorAll("nav button")],
   },
   fetchMovies() {
-    fetch(
-      urlMovies +
-        `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
-    )
-      .then((response) => {
-        console.log(response);
-        return response.json();
-      })
-      .then((data) => {
-        data.Search.forEach((movie) => {
-          fetchDataAndCreateCard(movie);
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    loadAnimation(
+      fetch(
+        urlMovies +
+          `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
+      )
+        .then((response) => {
+          console.log(response);
+          return response.json();
+        })
+        .then((data) => {
+          data.Search.forEach((movie) => {
+            fetchDataAndCreateCard(movie);
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    );
   },
   fetchFavorites() {
     resetMovieList();
-    this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie));
+    loadAnimation(
+      this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie))
+    );
   },
   createFavorite(id, favoriteBtn) {
     const movie = this.listOfMovies.find((movie) => movie.imdbID == id);
@@ -53,7 +58,7 @@ const App = {
   },
   render() {
     // fetchTestDataAndCreateCard();
-    this.fetchMovies();
+    // this.fetchMovies();
   },
 };
 
@@ -242,6 +247,12 @@ const throttle = (fn, delay) => {
     }
   };
 };
+
+function loadAnimation(func) {
+  App.elements.loader.classList.add("active");
+  func();
+  App.elements.loader.classList.remove("active");
+}
 
 function isFavorite(id) {
   if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
