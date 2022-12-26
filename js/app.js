@@ -11,12 +11,13 @@ const App = {
   listOfMovies: [],
   listOfFavorites: [],
   elements: {
+    body: document.body,
     movieListContainer: document.querySelector(".movie-list"),
     searchInput: document.querySelector(".search"),
     searchType: document.querySelector(".search-type"),
+    navButtons: [...document.querySelectorAll("nav button")],
   },
   fetchMovies() {
-    resetMovieList();
     fetch(
       urlMovies +
         `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
@@ -33,6 +34,10 @@ const App = {
       .catch((err) => {
         console.log(err);
       });
+  },
+  fetchFavorites() {
+    resetMovieList();
+    this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie));
   },
   createFavorite(id, favoriteBtn) {
     const movie = this.listOfMovies.find((movie) => movie.imdbID == id);
@@ -78,25 +83,29 @@ function fetchDataAndCreateCard(movie) {
     });
 }
 
-function resetMovieList() {
-  App.listOfMovies = [];
-  App.elements.movieListContainer.innerHTML = "";
-}
-
 function createCard(movie, isActive) {
   const card = document.createElement("div");
   card.classList.add("card");
   const id = movie.imdbID;
   card.id = id;
   let isListedFavorite = isFavorite(movie.imdbID);
-  card.innerHTML = setContent(movie, isActive, isListedFavorite);
+  card.innerHTML = setCardContent(movie, isActive, isListedFavorite);
   App.elements.movieListContainer.appendChild(card);
 }
 
-function isFavorite(id) {
-  if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
-    return true;
-  } else return false;
+function initSearch() {
+  searchWord = App.elements.searchInput.value;
+  if (searchWord.length > 2) {
+    resetMovieList();
+    App.fetchMovies();
+  } else {
+    resetMovieList();
+  }
+}
+
+function getMoreResults() {
+  page += 1;
+  App.fetchMovies();
 }
 
 function toggleFavorite(id) {
@@ -117,34 +126,19 @@ function toggleFavorite(id) {
 function toggleCard(id) {
   const movie = App.listOfMovies.find((movie) => movie.imdbID == id);
   const element = document.getElementById(id);
-  const isListedFavorite = isFavorite(movie.imdbID);
-  resetActiveCards(element, isListedFavorite);
+  resetActiveCards(element);
   if (element.classList.contains("active-card")) {
     element.classList.remove("active-card");
-    element.innerHTML = setContent(movie, false, isListedFavorite);
+    element.innerHTML = setCardContent(movie, false);
   } else {
     element.classList.add("active-card");
-    element.innerHTML = setContent(movie, true, isListedFavorite);
+    element.innerHTML = setCardContent(movie, true);
   }
   element.scrollIntoView();
 }
 
-function resetActiveCards(element, isListedFavorite) {
-  document.querySelectorAll(".active-card").forEach((card) => {
-    if (card !== element) {
-      card.classList.remove("active-card");
-      let recentMovie = App.listOfMovies.find(
-        (movie) => movie.imdbID == card.id
-      );
-      card.innerHTML = setContent(recentMovie, false, isListedFavorite);
-    }
-  });
-}
-
-function setContent(movie, isActive) {
-  console.log(movie);
+function setCardContent(movie, isActive) {
   const isListedFavorite = isFavorite(movie.imdbID);
-  console.log(isListedFavorite);
   let buttonClass = isListedFavorite ? "favorite-btn favorite" : "favorite-btn";
   const img =
     movie.Poster == "N/A" ? "/assets/noImgAvailable.jpg" : movie.Poster;
@@ -238,26 +232,61 @@ function setContent(movie, isActive) {
   }
 }
 
-function searchInit() {
-  searchWord = App.elements.searchInput.value;
-  if (searchWord.length > 2) {
-    App.fetchMovies();
-  } else {
-    resetMovieList();
+//Helpers
+const throttle = (fn, delay) => {
+  let time = Date.now();
+  return () => {
+    if (time + delay - Date.now() <= 0) {
+      fn();
+      time = Date.now();
+    }
+  };
+};
+
+function isFavorite(id) {
+  if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
+    return true;
+  } else return false;
+}
+
+function resetMovieList() {
+  page = 1;
+  App.listOfMovies = [];
+  App.elements.movieListContainer.innerHTML = "";
+}
+
+function resetActiveCards(element) {
+  document.querySelectorAll(".active-card").forEach((card) => {
+    if (card !== element) {
+      card.classList.remove("active-card");
+      let recentMovie = App.listOfMovies.find(
+        (movie) => movie.imdbID == card.id
+      );
+      card.innerHTML = setCardContent(recentMovie, false);
+    }
+  });
+}
+
+function isScrolledBottom() {
+  if (
+    window.innerHeight + (window.scrollY + 200) >= document.body.offsetHeight &&
+    searchWord.length > 2
+  ) {
+    throttle(getMoreResults(), 1000);
+    console.log(page);
   }
 }
 
-//TODO
-/* 
-  Add functionallity to get more pages when scrolling down
-*/
+//Event listeners
+window.addEventListener("scroll", throttle(isScrolledBottom, 100));
 
 App.elements.searchInput.addEventListener("input", () => {
-  searchInit();
+  initSearch();
 });
 
 App.elements.searchType.addEventListener("change", () => {
-  searchInit();
+  initSearch();
 });
 
+//Render app
 App.render();
