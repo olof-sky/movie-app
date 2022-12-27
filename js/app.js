@@ -4,6 +4,7 @@ const urlMovies = config.urlMovies;
 const accessKey = config.apiKeyMovies;
 const urlBin = config.urlBin;
 const masterKeyBin = config.masterKeyBin;
+let activeNav = "";
 let searchWord = "";
 let page = 1;
 
@@ -12,8 +13,10 @@ const App = {
   listOfFavorites: [],
   elements: {
     body: document.body,
+    main: document.main,
     loader: document.querySelector(".loader"),
     movieListContainer: document.querySelector(".movie-list"),
+    searchSection: document.querySelector(".search-section"),
     searchInput: document.querySelector(".search"),
     searchType: document.querySelector(".search-type"),
     navButtons: [...document.querySelectorAll("nav button")],
@@ -40,9 +43,7 @@ const App = {
   },
   fetchFavorites() {
     resetMovieList();
-    loadAnimation(
-      this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie))
-    );
+    this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie));
   },
   createFavorite(id, favoriteBtn) {
     const movie = this.listOfMovies.find((movie) => movie.imdbID == id);
@@ -142,6 +143,7 @@ function toggleCard(id) {
   element.scrollIntoView();
 }
 
+// Html contents
 function setCardContent(movie, isActive) {
   const isListedFavorite = isFavorite(movie.imdbID);
   let buttonClass = isListedFavorite ? "favorite-btn favorite" : "favorite-btn";
@@ -170,7 +172,7 @@ function setCardContent(movie, isActive) {
         <span class="buttons-container">
           <button class="${buttonClass}" onclick=toggleFavorite('${
     movie.imdbID
-  }')>${isListedFavorite ? "Remove favorite" : "Add to watchlist"}</button>
+  }')>${isListedFavorite ? "Remove favorite" : "Add to favorites"}</button>
           <button class="toggle-card" onclick="toggleCard('${
             movie.imdbID
           }')">About</button>
@@ -189,7 +191,7 @@ function setCardContent(movie, isActive) {
           <h3>${movie.Title}</h3>
           <button class="${buttonClass}" onclick=toggleFavorite('${
     movie.imdbID
-  }')>${isListedFavorite ? "Remove favorite" : "Add to watchlist"}</button>
+  }')>${isListedFavorite ? "Remove favorite" : "Add to favorites"}</button>
         </span>
         <span>
           <ul>
@@ -250,7 +252,7 @@ const throttle = (fn, delay) => {
 
 function loadAnimation(func) {
   App.elements.loader.classList.add("active");
-  func();
+  func;
   App.elements.loader.classList.remove("active");
 }
 
@@ -281,10 +283,26 @@ function resetActiveCards(element) {
 function isScrolledBottom() {
   if (
     window.innerHeight + (window.scrollY + 200) >= document.body.offsetHeight &&
-    searchWord.length > 2
+    searchWord.length > 2 &&
+    activeNav == "movies"
   ) {
     throttle(getMoreResults(), 1000);
     console.log(page);
+  }
+}
+
+//Routes
+function navRoute(route) {
+  App.elements.navButtons.forEach((btn) => btn.classList.remove("nav-active"));
+  document.querySelector(`[name=${route}]`).classList.add("nav-active");
+  activeNav = route;
+  if (route == "favorites") {
+    App.elements.searchSection.classList.add("hidden");
+    App.fetchFavorites();
+  }
+  if (route == "movies") {
+    App.elements.searchSection.classList.remove("hidden");
+    App.fetchMovies();
   }
 }
 
@@ -297,6 +315,12 @@ App.elements.searchInput.addEventListener("input", () => {
 
 App.elements.searchType.addEventListener("change", () => {
   initSearch();
+});
+
+App.elements.navButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    navRoute(button.name);
+  });
 });
 
 //Render app

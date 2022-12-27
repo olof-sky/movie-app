@@ -146,7 +146,7 @@ main section {
   margin-top: 80px;
 }
 
-main section:nth-child(1) {
+main .search-section {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -156,7 +156,11 @@ main section:nth-child(1) {
   width: fit-content;
 }
 
-main section:nth-child(1) span {
+main .search-section.hidden {
+  display: none;
+}
+
+main .search-section span {
   display: flex;
   justify-content: flex-end;
   height: fit-content;
@@ -168,6 +172,10 @@ main section:nth-child(1) span {
 
 main h2 {
   margin-top: 160px;
+}
+
+footer {
+  height: 160px;
 }
 
 .circle-logo {
