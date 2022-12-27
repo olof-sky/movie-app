@@ -43,6 +43,9 @@ const App = {
   },
   fetchFavorites() {
     resetMovieList();
+    if (this.listOfFavorites.length < 1) {
+      setErrorText();
+    }
     this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie));
   },
   createFavorite(id, favoriteBtn) {
@@ -121,6 +124,7 @@ function toggleFavorite(id) {
   if (isListedFavorite) {
     App.removeFavorite(id, button);
     button.classList.remove("favorite");
+    card.classList.add("hidden");
     return false;
   } else {
     App.createFavorite(id, button);
@@ -256,12 +260,6 @@ function loadAnimation(func) {
   App.elements.loader.classList.remove("active");
 }
 
-function isFavorite(id) {
-  if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
-    return true;
-  } else return false;
-}
-
 function resetMovieList() {
   page = 1;
   App.listOfMovies = [];
@@ -280,6 +278,32 @@ function resetActiveCards(element) {
   });
 }
 
+function resetNavButtons(route) {
+  App.elements.navButtons.forEach((btn) => btn.classList.remove("nav-active"));
+  document.querySelector(`[name=${route}]`).classList.add("nav-active");
+}
+
+function setErrorText() {
+  const errorText = document.createElement("h2");
+  errorText.classList.add("error-text");
+  errorText.textContent =
+    "You have not added any favorites, please add favorites to your list";
+  console.log("err");
+  App.elements.movieListContainer.appendChild(errorText);
+}
+
+function searchBarVisible(visible) {
+  visible
+    ? App.elements.searchSection.classList.remove("hidden")
+    : App.elements.searchSection.classList.add("hidden");
+}
+
+function isFavorite(id) {
+  if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
+    return true;
+  } else return false;
+}
+
 function isScrolledBottom() {
   if (
     window.innerHeight + (window.scrollY + 200) >= document.body.offsetHeight &&
@@ -293,15 +317,15 @@ function isScrolledBottom() {
 
 //Routes
 function navRoute(route) {
-  App.elements.navButtons.forEach((btn) => btn.classList.remove("nav-active"));
-  document.querySelector(`[name=${route}]`).classList.add("nav-active");
+  resetMovieList();
+  resetNavButtons(route);
   activeNav = route;
   if (route == "favorites") {
-    App.elements.searchSection.classList.add("hidden");
+    searchBarVisible(false);
     App.fetchFavorites();
   }
   if (route == "movies") {
-    App.elements.searchSection.classList.remove("hidden");
+    searchBarVisible(true);
     App.fetchMovies();
   }
 }
