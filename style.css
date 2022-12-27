@@ -18,6 +18,7 @@ body {
   box-sizing: border-box;
   background-color: var(--background-color);
   font-family: "Jost", sans-serif;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -286,6 +287,7 @@ footer {
 .card.active-card article span {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   padding: 40px;
 }
 
@@ -457,15 +459,21 @@ footer {
   }
 
   .card.active-card {
-    grid-column-end: 2;
+    grid-column-end: 3;
+    padding-bottom: 48px;
   }
 
   .card.active-card article {
     flex-direction: column;
   }
 
+  .card.active-card article span {
+    padding: 16px 40px;
+  }
+
   .card.active-card ul {
     height: 100%;
+    gap: 16px;
     flex-wrap: wrap;
     justify-content: flex-start;
   }
@@ -474,5 +482,9 @@ footer {
 @media screen and (max-width: 720px) {
   .movie-list {
     grid-template-columns: repeat(1, 1fr);
+  }
+
+  .card.active-card {
+    grid-column-end: 2;
   }
 }
