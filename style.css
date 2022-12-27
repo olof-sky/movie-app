@@ -284,7 +284,6 @@ footer {
   display: flex;
   flex-direction: column;
   padding: 40px;
-  gap: 16px;
 }
 
 .card.active-card article span:nth-child(2) {
@@ -327,6 +326,10 @@ footer {
 
 .card.active-card article span h4:nth-child(2) {
   text-align: left;
+}
+
+.card.active-card article section span:nth-child(3) h4:nth-child(3) {
+  margin-top: 16px;
 }
 
 .card .img-container {

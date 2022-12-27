@@ -4,7 +4,7 @@ const urlMovies = config.urlMovies;
 const accessKey = config.apiKeyMovies;
 const urlBin = config.urlBin;
 const masterKeyBin = config.masterKeyBin;
-let activeNav = "";
+let activeNav = "movies";
 let searchWord = "";
 let page = 1;
 
@@ -78,8 +78,9 @@ function fetchTestDataAndCreateCard() {
 
 //For prod
 function fetchDataAndCreateCard(movie) {
+  console.log(movie);
   const isActive = false;
-  fetch(urlMovies + `apikey=${accessKey}&i=${movie.imdbID}`)
+  fetch(urlMovies + `apikey=${accessKey}&plot=full&i=${movie.imdbID}`)
     .then((response) => {
       return response.json();
     })
@@ -288,7 +289,6 @@ function setErrorText() {
   errorText.classList.add("error-text");
   errorText.textContent =
     "You have not added any favorites, please add favorites to your list";
-  console.log("err");
   App.elements.movieListContainer.appendChild(errorText);
 }
 
