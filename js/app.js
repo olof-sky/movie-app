@@ -116,7 +116,7 @@ function fetchDataAndCreateCard(movie) {
       return response.json();
     })
     .then((data) => {
-      if (!App.elements.searchGenre.value) {
+      if (!App.elements.searchGenre.value || activeNav == "favorites") {
         App.listOfMovies.push(data);
         createCard(data, isActive);
       } else {
