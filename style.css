@@ -128,7 +128,7 @@ header {
   width: 100vw;
   gap: 40px;
   height: fit-content;
-  box-shadow: 0px 4px 4px rgba(255, 255, 255, 0.17);
+  box-shadow: 0px 1px 4px rgba(255, 255, 255, 0.17);
 }
 
 header nav {
@@ -231,6 +231,10 @@ footer {
   background-color: var(--offwhite-color);
   width: 300px;
   height: 640px;
+}
+
+.card.hidden {
+  display: none;
 }
 
 .card.active-card {
@@ -343,6 +347,11 @@ footer {
   cursor: pointer;
 }
 
+.error-text {
+  margin-top: 80px;
+  grid-column: 3/4;
+}
+
 .loader {
   display: none;
   border: 8px solid var(--soft-grey-color);
@@ -411,5 +420,10 @@ footer {
 
   .card.active-card {
     grid-column-end: 4;
+  }
+
+  .error-text {
+    margin-top: 80px;
+    grid-column: 2/3;
   }
 }
