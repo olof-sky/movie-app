@@ -19,6 +19,7 @@ const App = {
     searchSection: document.querySelector(".search-section"),
     searchInput: document.querySelector(".search"),
     searchType: document.querySelector(".search-type"),
+    searchGenre: document.querySelector(".search-genre"),
     navButtons: [...document.querySelectorAll("nav button")],
   },
   fetchMovies() {
@@ -109,15 +110,22 @@ function fetchTestDataAndCreateCard() {
 
 //For prod
 function fetchDataAndCreateCard(movie) {
-  console.log(movie);
   const isActive = false;
   fetch(urlMovies + `apikey=${accessKey}&plot=full&i=${movie.imdbID}`)
     .then((response) => {
       return response.json();
     })
     .then((data) => {
-      App.listOfMovies.push(data);
-      createCard(data, isActive);
+      if (!App.elements.searchGenre.value) {
+        App.listOfMovies.push(data);
+        createCard(data, isActive);
+      } else {
+        let genres = data.Genre.split(", ");
+        if (genres.indexOf(App.elements.searchGenre.value) !== -1) {
+          App.listOfMovies.push(data);
+          createCard(data, isActive);
+        }
+      }
     })
     .catch((err) => {
       console.log(err);
@@ -376,13 +384,17 @@ function navRoute(route) {
 }
 
 //Event listeners
-// window.addEventListener("scroll", throttle(isScrolledBottom, 100));
+window.addEventListener("scroll", throttle(isScrolledBottom, 100));
 
 App.elements.searchInput.addEventListener("input", () => {
   initSearch();
 });
 
 App.elements.searchType.addEventListener("change", () => {
+  initSearch();
+});
+
+App.elements.searchGenre.addEventListener("change", () => {
   initSearch();
 });
 
