@@ -42,15 +42,37 @@ const App = {
     );
   },
   fetchFavorites() {
+    this.listOfFavorites = [];
     resetMovieList();
-    if (this.listOfFavorites.length < 1) {
-      setErrorText();
-    }
-    this.listOfFavorites.forEach((movie) => fetchDataAndCreateCard(movie));
+    fetch(config.urlBin, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json",
+        "X-Master-Key": config.masterKeyBin,
+      },
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        if (data.record.length < 2 && Object.keys(data.record[0]).length < 1)
+          throw Error("No favorites");
+        data.record.forEach((movie) => this.listOfFavorites.push(movie));
+        if (activeNav == "favorites") {
+          this.listOfFavorites.forEach((movie) =>
+            fetchDataAndCreateCard(movie)
+          );
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorText();
+      });
   },
   createFavorite(id, favoriteBtn) {
     const movie = this.listOfMovies.find((movie) => movie.imdbID == id);
     this.listOfFavorites.push(movie);
+    pushFavorites(this.listOfFavorites);
     favoriteBtn.textContent = "Remove favorite";
   },
   removeFavorite(id, favoriteBtn) {
@@ -58,11 +80,14 @@ const App = {
       (movie) => movie.imdbID == id
     );
     this.listOfFavorites.splice(movieIndex, 1);
+    if (this.listOfFavorites.length < 1) {
+      this.listOfFavorites = [{}];
+    }
+    pushFavorites(this.listOfFavorites);
     favoriteBtn.textContent = "Add to favorites";
   },
   render() {
-    // fetchTestDataAndCreateCard();
-    // this.fetchMovies();
+    this.fetchFavorites();
   },
 };
 
@@ -91,6 +116,17 @@ function fetchDataAndCreateCard(movie) {
     .catch((err) => {
       console.log(err);
     });
+}
+
+function pushFavorites(favoritesList) {
+  fetch(config.urlBin, {
+    method: "PUT",
+    headers: {
+      "Content-type": "application/json",
+      "X-Master-Key": config.masterKeyBin,
+    },
+    body: JSON.stringify(favoritesList),
+  });
 }
 
 function createCard(movie, isActive) {
@@ -125,7 +161,10 @@ function toggleFavorite(id) {
   if (isListedFavorite) {
     App.removeFavorite(id, button);
     button.classList.remove("favorite");
-    card.classList.add("hidden");
+    if (activeNav == "favorites") {
+      console.log(card);
+      card.classList.add("hidden");
+    }
     return false;
   } else {
     App.createFavorite(id, button);
