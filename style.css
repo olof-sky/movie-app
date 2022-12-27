@@ -181,7 +181,7 @@ footer {
 .circle-logo {
   position: absolute;
   margin: 0 auto;
-  top: 16px;
+  top: 40px;
   left: -80px;
 }
 
@@ -243,6 +243,7 @@ footer {
   grid-column-end: 6;
   scroll-margin: 80px;
   width: 100%;
+  max-width: 100vw;
 }
 
 .card article {
@@ -417,6 +418,14 @@ footer {
 }
 
 @media screen and (max-width: 1900px) {
+  .main .search-section {
+    height: 360px;
+  }
+
+  .circle-logo {
+    top: -24px;
+  }
+
   .movie-list {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -428,5 +437,36 @@ footer {
   .error-text {
     margin-top: 80px;
     grid-column: 2/3;
+  }
+}
+
+@media screen and (max-width: 1100px) {
+  h1 {
+    font-size: 30px;
+  }
+
+  .movie-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card.active-card {
+    grid-column-end: 2;
+    height: fit-content;
+  }
+
+  .card.active-card article {
+    flex-direction: column;
+  }
+
+  .card.active-card ul {
+    height: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .movie-list {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
