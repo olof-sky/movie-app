@@ -22,28 +22,30 @@ const App = {
     navButtons: [...document.querySelectorAll("nav button")],
   },
   fetchMovies() {
-    loadAnimation(
-      fetch(
-        urlMovies +
-          `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
-      )
-        .then((response) => {
-          console.log(response);
-          return response.json();
-        })
-        .then((data) => {
-          data.Search.forEach((movie) => {
-            fetchDataAndCreateCard(movie);
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-    );
+    setLoading(true);
+    fetch(
+      urlMovies +
+        `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
+    )
+      .then((response) => {
+        console.log(response);
+        return response.json();
+      })
+      .then((data) => {
+        setLoading(false);
+        data.Search.forEach((movie) => {
+          fetchDataAndCreateCard(movie);
+        });
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+      });
   },
   fetchFavorites() {
     this.listOfFavorites = [];
     resetMovieList();
+    setLoading(true);
     fetch(config.urlBin, {
       method: "GET",
       headers: {
@@ -55,6 +57,7 @@ const App = {
         return response.json();
       })
       .then((data) => {
+        setLoading(false);
         if (data.record.length < 2 && Object.keys(data.record[0]).length < 1)
           throw Error("No favorites");
         data.record.forEach((movie) => this.listOfFavorites.push(movie));
@@ -66,7 +69,10 @@ const App = {
       })
       .catch((err) => {
         console.log(err);
-        setErrorText();
+        setLoading(false);
+        if (activeNav == "favorites") {
+          setErrorText();
+        }
       });
   },
   createFavorite(id, favoriteBtn) {
@@ -294,10 +300,10 @@ const throttle = (fn, delay) => {
   };
 };
 
-function loadAnimation(func) {
-  App.elements.loader.classList.add("active");
-  func;
-  App.elements.loader.classList.remove("active");
+function setLoading(status) {
+  status
+    ? App.elements.loader.classList.add("active")
+    : App.elements.loader.classList.remove("active");
 }
 
 function resetMovieList() {
@@ -324,11 +330,11 @@ function resetNavButtons(route) {
 }
 
 function setErrorText() {
-  const errorText = document.createElement("h2");
-  errorText.classList.add("error-text");
-  errorText.textContent =
-    "You have not added any favorites, please add favorites to your list";
-  App.elements.movieListContainer.appendChild(errorText);
+  App.elements.movieListContainer.innerHTML =
+    "<h2>You have not added any favorites, please add favorites to your list</h2>";
+  App.elements.movieListContainer
+    .querySelector("h2")
+    .classList.add("error-text");
 }
 
 function searchBarVisible(visible) {
@@ -370,7 +376,7 @@ function navRoute(route) {
 }
 
 //Event listeners
-window.addEventListener("scroll", throttle(isScrolledBottom, 100));
+// window.addEventListener("scroll", throttle(isScrolledBottom, 100));
 
 App.elements.searchInput.addEventListener("input", () => {
   initSearch();
