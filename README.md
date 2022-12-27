@@ -10,9 +10,11 @@ Save your favorites to jsonbin
 Create a file named config.js inside /js folder.
 
 Add following.
+``` javascript
 const config = {
   urlMovies: "http://www.omdbapi.com/?",
   apiKeyMovies: "Your key here",
   urlBin: "https://api.jsonbin.io/v3/b/Your bin ID here",
   masterKeyBin: "Your masterkey to bin here",
 };
+```
