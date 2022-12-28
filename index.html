@@ -30,7 +30,12 @@
       <section class="search-section">
         <h1>What do you want to watch</h1>
         <span>
-          <input class="search" type="text" placholder="Search movie" />
+          <span>
+            <input class="search" type="text" placholder="Search movie" />
+            <button class="random-movie" onclick="getRandomMovies()">
+              <img src="./assets/dice.svg" />
+            </button>
+          </span>
           <select class="search-type" id="search-type">
             <option value="">Type</option>
             <option value="movie">Movie</option>
