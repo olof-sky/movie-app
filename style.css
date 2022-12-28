@@ -122,6 +122,23 @@ nav button:hover {
   border-bottom: 1px solid #00ffa3;
 }
 
+button.random-movie {
+  position: absolute;
+  all: unset;
+  cursor: pointer;
+  width: fit-content;
+  margin-left: -56px;
+  padding-right: 16px;
+}
+
+button.random-movie:active {
+  opacity: 60%;
+}
+
+button.random-movie img {
+  width: 16px;
+}
+
 header {
   display: flex;
   justify-content: center;
@@ -170,6 +187,12 @@ main .search-section span {
   padding: 24px;
   gap: 24px;
   z-index: 1;
+}
+
+main .search-section span span {
+  padding: 0px;
+  max-width: 440px;
+  align-items: end;
 }
 
 main h2 {
@@ -486,5 +509,9 @@ footer {
 
   .card.active-card {
     grid-column-end: 2;
+  }
+
+  button.random-movie {
+    padding-right: 0;
   }
 }
