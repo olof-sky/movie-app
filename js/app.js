@@ -6,7 +6,6 @@ const urlBin = config.urlBin;
 const masterKeyBin = config.masterKeyBin;
 let activeNav = "movies";
 let searchWord = "";
-let pushResolved = true;
 let page = 1;
 
 const App = {
@@ -24,91 +23,83 @@ const App = {
     searchGenre: document.querySelector(".search-genre"),
     navButtons: [...document.querySelectorAll("nav button")],
   },
-  fetchMovies() {
+  async fetchMovies() {
     setLoading(true);
-    fetch(
+    const tempArr = [];
+    const response = await fetch(
       urlMovies +
         `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
-    )
-      .then((response) => {
-        console.log("Fetching movies", response);
-        return response.json();
-      })
-      .then((data) => {
-        setLoading(false);
+    );
+    if (response.ok) {
+      const data = await response.json();
+      if (data.Search) {
         data.Search.forEach((movie) => {
-          fetchDataAndCreateCard(movie);
+          fetchDataAndCreateCard(movie.imdbID);
+          tempArr.push(movie);
         });
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
-    if (pushResolved) pushHistory();
+      }
+      this.listOfMovies.push(tempArr);
+      addToHistory();
+    } else {
+      console.log("Error: ", response.status);
+    }
+    setLoading(false);
   },
-  fetchFavorites() {
+  async fetchFavorites() {
     this.listOfFavorites = [];
     resetMovieList();
     setLoading(true);
-    fetch(config.urlBin, {
+    console.log("Fetching favorites");
+    const response = await fetch(config.urlBin, {
       method: "GET",
       headers: {
         "Content-type": "application/json",
         "X-Master-Key": config.masterKeyBin,
       },
-    })
-      .then((response) => {
-        console.log("Fetching favorites", response);
-        return response.json();
-      })
-      .then((data) => {
-        setLoading(false);
-        if (data.record.length < 2 && Object.keys(data.record[0]).length < 1)
-          throw Error("No favorites");
-        data.record.forEach((movie) => this.listOfFavorites.push(movie));
-        if (activeNav == "favorites") {
-          this.listOfFavorites.forEach((movie) =>
-            fetchDataAndCreateCard(movie)
-          );
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-        if (activeNav == "favorites") {
-          setErrorText();
-        }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      setLoading(false);
+      if (data.record.length < 2 && Object.keys(data.record[0]).length < 1)
+        throw Error("No favorites");
+      data.record.forEach((movie) => {
+        this.listOfFavorites.push(movie);
+        if (activeNav == "favorites") fetchDataAndCreateCard(movie.imdbID);
       });
+    } else {
+      console.log("Error: ", response.status);
+      setLoading(false);
+      if (activeNav == "favorites") {
+        setErrorText();
+      }
+    }
   },
-  fetchSearchHits() {
+  async fetchSearchHits() {
     setLoading(true);
     this.listOfSearchHits = [];
-    fetch(config.urlSearchHistoryBin, {
+    const tempArr = [];
+    const response = await fetch(config.urlSearchHistoryBin, {
       method: "GET",
       headers: {
         "Content-type": "application/json",
         "X-Master-Key": config.masterKeyBin,
       },
-    })
-      .then((response) => {
-        console.log("Fetching search hits", response);
-        return response.json();
-      })
-      .then((data) => {
-        setLoading(false);
-        data.record.forEach((movie) => {
-          addMovieToHistory(movie);
-        });
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err);
-      });
+    });
+    if (response.ok) {
+      setLoading(false);
+      const data = await response.json();
+      console.log("Records::", data);
+      data.record.forEach((imdbID) => tempArr.push(imdbID));
+      this.listOfSearchHits.push(...tempArr);
+    } else {
+      console.log("Error: ", response.status);
+    }
   },
   createFavorite(id, favoriteBtn) {
-    const movie = this.listOfMovies.find((movie) => movie.imdbID == id);
-    this.listOfFavorites.push(movie);
-    pushFavorites(this.listOfFavorites);
+    const movie = findMovieById(id);
+    addFavorite(movie);
+    pushFavorites();
     favoriteBtn.textContent = "Remove favorite";
   },
   removeFavorite(id, favoriteBtn) {
@@ -119,49 +110,38 @@ const App = {
     if (this.listOfFavorites.length < 1) {
       this.listOfFavorites = [{}];
     }
-    pushFavorites(this.listOfFavorites);
+    pushFavorites();
     favoriteBtn.textContent = "Add to favorites";
   },
   render() {
-    this.fetchFavorites();
     this.fetchSearchHits();
   },
 };
 
-//For testing
-function fetchTestDataAndCreateCard() {
-  let arr = { ...localStorage };
-  for (const [key, value] of Object.entries(arr)) {
-    App.listOfMovies.push(JSON.parse(value));
-    createCard(JSON.parse(value), false);
-    console.log(JSON.parse(value));
+async function fetchDataAndCreateCard(movieImdbID) {
+  const movieData = await fetchFullMovieDataById(movieImdbID);
+  const isActive = false;
+  // TODO
+  // Setup function for checking genre and type
+  const genres = movieData.Genre.split(", ");
+  const genreSelected = genres.some(
+    (item) => item == App.elements.searchGenre.value
+  );
+  const typeSelected = App.elements.searchType.value == movieData.Type;
+  // TODO
+  if (movieData && genreSelected && typeSelected) {
+    App.listOfMovies.push(movieData);
+    addMovieToHistory(movieData);
+    renderMovieCard(movieData, isActive);
   }
 }
 
-//For prod
-function fetchDataAndCreateCard(movie) {
-  const isActive = false;
-  fetch(urlMovies + `apikey=${accessKey}&plot=full&i=${movie.imdbID}`)
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-      if (!App.elements.searchGenre.value || activeNav == "favorites") {
-        App.listOfMovies.push(data);
-        addMovieToHistory(data);
-        createCard(data, isActive);
-      } else {
-        let genres = data.Genre.split(", ");
-        if (genres.indexOf(App.elements.searchGenre.value) !== -1) {
-          App.listOfMovies.push(data);
-          addMovieToHistory(data);
-          createCard(data, isActive);
-        }
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+async function fetchFullMovieDataById(id) {
+  const response = await fetch(
+    urlMovies + `apikey=${accessKey}&plot=full&i=${id}`
+  );
+  const data = await response.json();
+  return data;
 }
 
 function initSearch() {
@@ -318,6 +298,20 @@ const throttle = (fn, delay) => {
   };
 };
 
+function debounce(func, timeout = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, timeout);
+  };
+}
+
+function findMovieById(id) {
+  return App.listOfMovies.find((movie) => movie.imdbID == id);
+}
+
 function setLoading(status) {
   status
     ? App.elements.loader.classList.add("active")
@@ -361,6 +355,10 @@ function searchBarVisible(visible) {
     : App.elements.searchSection.classList.add("hidden");
 }
 
+function movieInHistory(id) {
+  return App.listOfSearchHits.filter((movieId) => movieId == id).length > 0;
+}
+
 function isFavorite(id) {
   if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
     return true;
@@ -378,14 +376,18 @@ function isScrolledBottom() {
   }
 }
 
-function pushFavorites(favoritesList) {
+function addFavorite(movie) {
+  App.listOfFavorites.push(movie);
+}
+
+function pushFavorites() {
   fetch(config.urlBin, {
     method: "PUT",
     headers: {
       "Content-type": "application/json",
       "X-Master-Key": config.masterKeyBin,
     },
-    body: JSON.stringify(favoritesList),
+    body: JSON.stringify(App.listOfFavorites),
   })
     .then((response) => {
       console.log("Pushing favorites: ", response);
@@ -395,8 +397,7 @@ function pushFavorites(favoritesList) {
     });
 }
 
-async function pushHistory() {
-  pushResolved = false;
+async function addToHistory() {
   fetch(config.urlSearchHistoryBin, {
     method: "PUT",
     headers: {
@@ -407,36 +408,25 @@ async function pushHistory() {
   })
     .then((response) => {
       console.log("Pushing history: ", response);
-      pushResolved = true;
     })
     .catch((err) => {
       console.log(err);
-      pushResolved = true;
     });
 }
 
 function addMovieToHistory(movie) {
-  if (
-    App.listOfSearchHits.filter((item) => item.imdbID == movie.imdbID).length ==
-    0
-  ) {
-    App.listOfSearchHits.push(movie);
+  if (!movieInHistory(movie.imdbID)) {
+    App.listOfSearchHits.push(movie.imdbID);
   }
 }
 
 function getRandomMovies() {
   let list = App.listOfSearchHits;
-  console.log(list);
   document.querySelector(".search").value = "";
   searchWord = "";
   resetMovieList();
-  let recentNums = [];
   for (let index = 0; index < 10; index++) {
     let num = getRandomNum(list.length);
-    while (recentNums.indexOf(num) !== -1) {
-      num = getRandomNum(list.length);
-    }
-    recentNums.push(num);
     fetchDataAndCreateCard(list[num]);
   }
 }
@@ -445,10 +435,10 @@ function getRandomNum(roof) {
   return Math.floor(Math.random() * roof);
 }
 
-function createCard(movie, isActive) {
+function renderMovieCard(movie, isActive) {
   const card = document.createElement("div");
-  card.classList.add("card");
   const id = movie.imdbID;
+  card.classList.add("card");
   card.id = id;
   card.innerHTML = setCardContent(movie, isActive);
   App.elements.movieListContainer.appendChild(card);
@@ -470,7 +460,7 @@ function navRoute(route) {
 }
 
 //Event listeners
-window.addEventListener("scroll", throttle(isScrolledBottom, 100));
+window.addEventListener("scroll", throttle(isScrolledBottom, 200));
 
 App.elements.searchInput.addEventListener("input", () => {
   initSearch();
