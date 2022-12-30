@@ -59,7 +59,7 @@ const App = {
     });
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+      console.log("Favorites::", data);
       setLoading(false);
       if (data.record.length < 2 && Object.keys(data.record[0]).length < 1)
         throw Error("No favorites");
@@ -79,6 +79,7 @@ const App = {
     setLoading(true);
     this.listOfSearchHits = [];
     const tempArr = [];
+    console.log("Fetching search history");
     const response = await fetch(config.urlSearchHistoryBin, {
       method: "GET",
       headers: {
@@ -164,6 +165,7 @@ function addFavorite(movie) {
 }
 
 async function pushFavorites() {
+  console.log("Pushing favorites");
   const response = await fetch(config.urlBin, {
     method: "PUT",
     headers: {
@@ -173,27 +175,27 @@ async function pushFavorites() {
     body: JSON.stringify(App.listOfFavorites),
   });
   if (response.ok) {
-    console.log("Pushing favorites: ", response);
+    console.log("Favorites::", response);
   } else {
     console.log("Error: ", response.status);
   }
 }
 
 async function pushHistory() {
-  fetch(config.urlSearchHistoryBin, {
+  console.log("Pushing history");
+  const response = await fetch(config.urlSearchHistoryBin, {
     method: "PUT",
     headers: {
       "Content-type": "application/json",
       "X-Master-Key": config.masterKeyBin,
     },
     body: JSON.stringify(App.listOfSearchHits),
-  })
-    .then((response) => {
-      console.log("Pushing history: ", response);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  });
+  if (response.ok) {
+    console.log("History::", response);
+  } else {
+    console.log("Error: ", response.status);
+  }
 }
 
 function addMovieToHistory(movie) {
