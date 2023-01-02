@@ -61,11 +61,15 @@ const App = {
       const data = await response.json();
       console.log("Favorites::", data);
       setLoading(false);
-      if (data.record.length < 2 && Object.keys(data.record[0]).length < 1)
-        throw Error("No favorites");
-      data.record.forEach((movie) => {
-        this.listOfFavorites.push(movie);
-        if (activeNav == "favorites") fetchDataAndCreateCard(movie.imdbID);
+      ifFavoritesEmptyShowError(data);
+      data.record.forEach((imdbID) => {
+        // Favorites can be an empty object
+        if (typeof imdbID == "string") {
+          this.listOfFavorites.push(imdbID);
+          if (activeNav == "favorites") {
+            fetchDataAndCreateCard(imdbID);
+          }
+        }
       });
     } else {
       console.log("Error: ", response.status);
@@ -74,6 +78,21 @@ const App = {
         setErrorText();
       }
     }
+  },
+  async createFavorite(id, favoriteBtn) {
+    const movie = findMovieById(id);
+    addFavorite(movie.imdbID);
+    favoriteBtn.textContent = "Remove favorite";
+    await pushFavorites();
+  },
+  async removeFavorite(id, favoriteBtn) {
+    const movieIndex = this.listOfFavorites.findIndex((imdbID) => imdbID == id);
+    this.listOfFavorites.splice(movieIndex, 1);
+    if (this.listOfFavorites.length < 1) {
+      this.listOfFavorites = [{}];
+    }
+    favoriteBtn.textContent = "Add to favorites";
+    await pushFavorites();
   },
   async fetchSearchHits() {
     setLoading(true);
@@ -97,23 +116,6 @@ const App = {
       console.log("Error: ", response.status);
     }
   },
-  async createFavorite(id, favoriteBtn) {
-    const movie = findMovieById(id);
-    addFavorite(movie);
-    await pushFavorites();
-    favoriteBtn.textContent = "Remove favorite";
-  },
-  async removeFavorite(id, favoriteBtn) {
-    const movieIndex = this.listOfFavorites.findIndex(
-      (movie) => movie.imdbID == id
-    );
-    this.listOfFavorites.splice(movieIndex, 1);
-    if (this.listOfFavorites.length < 1) {
-      this.listOfFavorites = [{}];
-    }
-    await pushFavorites();
-    favoriteBtn.textContent = "Add to favorites";
-  },
   render() {
     this.fetchSearchHits();
   },
@@ -129,22 +131,30 @@ function initSearch() {
   }
 }
 
-function sortByGenreAndType(genre, type) {
-  const genres = genre.split(", ");
+function validateGenreAndType(genre, type) {
   const genreEmpty = App.elements.searchGenre.value == "";
   const typeEmpty = App.elements.searchType.value == "";
-  const genreSelected = genres.some(
-    (item) => item == App.elements.searchGenre.value
-  );
   const typeSelected = App.elements.searchType.value == type;
+  let genreSelected = false;
+  try {
+    genres = genre.split(", ");
+    genreSelected = genres.some(
+      (item) => item == App.elements.searchGenre.value
+    );
+  } catch {
+    console.log(genreSelected);
+  }
   if (genreEmpty && typeEmpty) return true;
-  if (genreSelected || typeSelected) return true;
+  if (genreSelected && typeSelected) return true;
+  if (genreSelected && typeEmpty) return true;
+  if (genreEmpty && typeSelected) return true;
+  else return false;
 }
 
 async function fetchDataAndCreateCard(movieImdbID) {
   const movieData = await fetchFullMovieDataById(movieImdbID);
   const isActive = false;
-  const isValid = sortByGenreAndType(movieData.Genre, movieData.Type);
+  const isValid = validateGenreAndType(movieData.Genre, movieData.Type);
   if (movieData && isValid) {
     App.listOfMovies.push(movieData);
     addMovieToHistory(movieData);
@@ -160,8 +170,8 @@ async function fetchFullMovieDataById(id) {
   return data;
 }
 
-function addFavorite(movie) {
-  App.listOfFavorites.push(movie);
+function addFavorite(imdbID) {
+  App.listOfFavorites.push(imdbID);
 }
 
 async function pushFavorites() {
@@ -175,7 +185,9 @@ async function pushFavorites() {
     body: JSON.stringify(App.listOfFavorites),
   });
   if (response.ok) {
-    console.log("Favorites::", response);
+    const data = await response.json();
+    ifFavoritesEmptyShowError(data);
+    console.log("Favorites::", data);
   } else {
     console.log("Error: ", response.status);
   }
@@ -192,7 +204,8 @@ async function pushHistory() {
     body: JSON.stringify(App.listOfSearchHits),
   });
   if (response.ok) {
-    console.log("History::", response);
+    const data = await response.json();
+    console.log("History::", data);
   } else {
     console.log("Error: ", response.status);
   }
@@ -204,19 +217,19 @@ function addMovieToHistory(movie) {
   }
 }
 
-function toggleFavorite(id) {
-  const card = document.getElementById(id);
+function toggleFavorite(imdbID) {
+  const card = document.getElementById(imdbID);
   const button = card.querySelector(".favorite-btn");
-  const isListedFavorite = isFavorite(id);
+  const isListedFavorite = isFavorite(imdbID);
   if (isListedFavorite) {
-    App.removeFavorite(id, button);
+    App.removeFavorite(imdbID, button);
     button.classList.remove("favorite");
     if (activeNav == "favorites") {
       card.classList.add("hidden");
     }
     return false;
   } else {
-    App.createFavorite(id, button);
+    App.createFavorite(imdbID, button);
     button.classList.add("favorite");
     return true;
   }
@@ -247,7 +260,6 @@ function getRandomMovies() {
   }
 }
 
-//Routes
 function navRoute(route) {
   resetMovieList();
   resetNavButtons(route);
@@ -263,7 +275,6 @@ function navRoute(route) {
   }
 }
 
-//Event listeners
 window.addEventListener("scroll", throttle(isScrolledBottom, 200));
 
 App.elements.searchInput.addEventListener("input", () => {
@@ -284,5 +295,4 @@ App.elements.navButtons.forEach((button) => {
   });
 });
 
-//Render app
 App.render();
