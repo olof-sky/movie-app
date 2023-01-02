@@ -90,9 +90,17 @@ function movieInHistory(id) {
 }
 
 function isFavorite(id) {
-  if (App.listOfFavorites.find((movie) => movie.imdbID == id)) {
+  if (App.listOfFavorites.find((imdbID) => imdbID == id)) {
     return true;
   } else return false;
+}
+
+function ifFavoritesEmptyShowError(data) {
+  if (data.record.length < 2 && Object.keys(data.record[0]).length < 1) {
+    if (activeNav == "favorites") {
+      setErrorText();
+    }
+  }
 }
 
 function isScrolledBottom() {
