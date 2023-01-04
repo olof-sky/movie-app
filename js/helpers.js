@@ -8,7 +8,7 @@ const throttle = (fn, delay) => {
   };
 };
 
-function debounce(func, timeout = 300) {
+function debounce(func, timeout) {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -18,6 +18,7 @@ function debounce(func, timeout = 300) {
   };
 }
 
+const debounceGetMoreResults = debounce(() => getMoreResults(), 300);
 function getMoreResults() {
   page += 1;
   App.fetchMovies();
@@ -109,7 +110,7 @@ function isScrolledBottom() {
     searchWord.length > 2 &&
     activeNav == "movies"
   ) {
-    throttle(getMoreResults(), 1000);
+    debounceGetMoreResults(500);
     console.log("Search page: " + page);
   }
 }

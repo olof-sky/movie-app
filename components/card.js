@@ -15,7 +15,9 @@ function setCardContent(movie, isActive) {
   const inactiveCard = `
     <article>
       <div class="img-container">
-        <img onclick="toggleCard('${movie.imdbID}')" src="${img}"
+        <img onclick="toggleCard('${
+          movie.imdbID
+        }')" src="${img}" onerror="src='/assets/noImgAvailable.jpg'"
   }">
       </div>
       <section>
@@ -38,7 +40,9 @@ function setCardContent(movie, isActive) {
   const activeCard = `
     <article>
       <div class="img-container">
-        <img onclick="toggleCard('${movie.imdbID}')" src="${img}">
+        <img onclick="toggleCard('${
+          movie.imdbID
+        }')" src="${img}" onerror="src='/assets/noImgAvailable.jpg'"/>
       </div>
       <section>
         <span>
