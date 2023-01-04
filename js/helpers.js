@@ -24,6 +24,27 @@ function getMoreResults() {
   App.fetchMovies();
 }
 
+async function getFromBin(url) {
+  return await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-type": "application/json",
+      "X-Master-Key": config.masterKeyBin,
+    },
+  });
+}
+
+async function putToBin(url, list) {
+  return await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-type": "application/json",
+      "X-Master-Key": config.masterKeyBin,
+    },
+    body: JSON.stringify(list),
+  });
+}
+
 function findMovieById(id) {
   return App.listOfMovies.find((movie) => movie.imdbID == id);
 }
@@ -57,6 +78,12 @@ function setErrorText(error) {
   App.elements.movieListContainer
     .querySelector("h2")
     .classList.add("error-text");
+}
+
+function resetAll(route) {
+  resetMovieList();
+  resetNavButtons(route);
+  resetSelectors();
 }
 
 function resetMovieList() {

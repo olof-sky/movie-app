@@ -36,8 +36,7 @@ const App = {
         if (response.status == 401) {
           setErrorText(response.status);
           throw new SearchLimitExceededError(response.statusText);
-        }
-        throw new Error(response.statusText);
+        } else throw new Error(response.statusText);
       }
       const data = await response.json();
       if (data.Search) {
@@ -60,13 +59,7 @@ const App = {
     resetMovieList();
     console.log("Fetching favorites");
     try {
-      const response = await fetch(config.urlBin, {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          "X-Master-Key": config.masterKeyBin,
-        },
-      });
+      const response = await getFromBin(config.urlBin);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -114,13 +107,7 @@ const App = {
     const tempArr = [];
     console.log("Fetching search history");
     try {
-      const response = await fetch(config.urlSearchHistoryBin, {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          "X-Master-Key": config.masterKeyBin,
-        },
-      });
+      const response = await getFromBin(config.urlSearchHistoryBin);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -207,14 +194,7 @@ function addFavorite(imdbID) {
 async function pushFavorites() {
   console.log("Pushing favorites");
   try {
-    const response = await fetch(config.urlBin, {
-      method: "PUT",
-      headers: {
-        "Content-type": "application/json",
-        "X-Master-Key": config.masterKeyBin,
-      },
-      body: JSON.stringify(App.listOfFavorites),
-    });
+    const response = await putToBin(config.urlBin, App.listOfFavorites);
     if (!response.ok) {
       throw new Error(response.statusText);
     }
@@ -230,14 +210,10 @@ const debouncePushHistory = debounce(() => pushHistory(), 1000);
 async function pushHistory() {
   console.log("Pushing history");
   try {
-    const response = await fetch(config.urlSearchHistoryBin, {
-      method: "PUT",
-      headers: {
-        "Content-type": "application/json",
-        "X-Master-Key": config.masterKeyBin,
-      },
-      body: JSON.stringify(App.listOfSearchHits),
-    });
+    const response = await putToBin(
+      config.urlSearchHistoryBin,
+      App.listOfSearchHits
+    );
     if (!response.ok) {
       throw new Error(response.statusText);
     }
@@ -301,9 +277,7 @@ function getRandomMovies() {
 }
 
 function navRoute(route) {
-  resetMovieList();
-  resetNavButtons(route);
-  resetSelectors();
+  resetAll(route);
   activeNav = route;
   if (route == "favorites") {
     searchBarVisible(false);
