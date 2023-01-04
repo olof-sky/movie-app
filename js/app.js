@@ -26,12 +26,17 @@ const App = {
   async fetchMovies() {
     setLoading(true);
     const tempArr = [];
+    console.log("Fetching movies");
     try {
       const response = await fetch(
         urlMovies +
           `apikey=${accessKey}&s=${searchWord}&page=${page}&type=${this.elements.searchType.value}`
       );
       if (!response.ok) {
+        if (response.status == 401) {
+          setErrorText(response.status);
+          throw new SearchLimitExceededError(response.statusText);
+        }
         throw new Error(response.statusText);
       }
       const data = await response.json();
@@ -54,7 +59,6 @@ const App = {
     this.listOfFavorites = [];
     resetMovieList();
     console.log("Fetching favorites");
-
     try {
       const response = await fetch(config.urlBin, {
         method: "GET",
@@ -76,6 +80,8 @@ const App = {
           if (activeNav == "favorites") {
             fetchDataAndCreateCard(imdbID);
           }
+        } else {
+          throw new FavoritesEmptyError();
         }
       });
       setLoading(false);
@@ -83,7 +89,7 @@ const App = {
       console.log("Error: ", err);
       setLoading(false);
       if (activeNav == "favorites") {
-        setErrorText();
+        setErrorText("noFavorites");
       }
     }
   },

@@ -43,9 +43,17 @@ function setLoading(status) {
     : App.elements.loader.classList.remove("active");
 }
 
-function setErrorText() {
-  App.elements.movieListContainer.innerHTML =
-    "<h2>You have not added any favorites, please add favorites to your list</h2>";
+function setErrorText(error) {
+  let text;
+  if (error == "noFavorites") {
+    text =
+      "You have not added any favorites, please add favorites to your list";
+  }
+  if (error == 401) {
+    document.querySelector(".search-section").classList.add("hidden");
+    text = "Your search limit for today is reached, please come back tomorrow";
+  }
+  App.elements.movieListContainer.innerHTML = `<h2>${text}</h2>`;
   App.elements.movieListContainer
     .querySelector("h2")
     .classList.add("error-text");
@@ -99,7 +107,8 @@ function isFavorite(id) {
 function ifFavoritesEmptyShowError(data) {
   if (data.record.length < 2 && Object.keys(data.record[0]).length < 1) {
     if (activeNav == "favorites") {
-      setErrorText();
+      setErrorText("noFavorites");
+      throw new FavoritesEmptyError();
     }
   }
 }
