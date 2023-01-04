@@ -45,6 +45,18 @@ async function putToBin(url, list) {
   });
 }
 
+async function fetchFullMovieDataById(id) {
+  try {
+    const response = await fetch(
+      urlMovies + `apikey=${accessKey}&plot=full&i=${id}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+}
+
 function findMovieById(id) {
   return App.listOfMovies.find((movie) => movie.imdbID == id);
 }

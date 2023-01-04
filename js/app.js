@@ -176,18 +176,6 @@ async function fetchDataAndCreateCard(movieImdbID) {
   }
 }
 
-async function fetchFullMovieDataById(id) {
-  try {
-    const response = await fetch(
-      urlMovies + `apikey=${accessKey}&plot=full&i=${id}`
-    );
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-}
-
 function addFavorite(imdbID) {
   App.listOfFavorites.push(imdbID);
 }
