@@ -135,14 +135,14 @@ function validateGenreAndType(genre, type) {
   const genreEmpty = App.elements.searchGenre.value == "";
   const typeEmpty = App.elements.searchType.value == "";
   const typeSelected = App.elements.searchType.value == type;
-  let genreSelected = false;
+  let genreSelected;
   try {
     genres = genre.split(", ");
     genreSelected = genres.some(
       (item) => item == App.elements.searchGenre.value
     );
   } catch {
-    console.log(genreSelected);
+    genreSelected = false;
   }
   if (genreEmpty && typeEmpty) return true;
   if (genreSelected && typeSelected) return true;
