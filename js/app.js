@@ -42,7 +42,7 @@ const App = {
         });
       }
       this.listOfMovies.push(tempArr);
-      pushHistory();
+      debouncePushHistory();
       setLoading(false);
     } catch (err) {
       console.log("Error: ", err);
@@ -220,6 +220,7 @@ async function pushFavorites() {
   }
 }
 
+const debouncePushHistory = debounce(() => pushHistory(), 1000);
 async function pushHistory() {
   console.log("Pushing history");
   try {
@@ -310,7 +311,7 @@ function navRoute(route) {
 
 window.addEventListener("scroll", throttle(isScrolledBottom, 50));
 
-App.elements.searchInput.addEventListener("input", () => {
+App.elements.searchInput.addEventListener("keydown", () => {
   debounceInitSearch(300);
 });
 
