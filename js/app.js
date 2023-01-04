@@ -2,7 +2,8 @@ console.log("Application is live");
 
 const urlMovies = config.urlMovies;
 const accessKey = config.apiKeyMovies;
-const urlBin = config.urlBin;
+const urlFavoritesBin = config.urlFavoritesBin;
+const urlSearchHistoryBin = config.urlSearchHistoryBin;
 const masterKeyBin = config.masterKeyBin;
 let activeNav = "movies";
 let searchWord = "";
@@ -59,7 +60,7 @@ const App = {
     resetMovieList();
     console.log("Fetching favorites");
     try {
-      const response = await getFromBin(config.urlBin);
+      const response = await getFromBin(urlFavoritesBin);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -107,7 +108,7 @@ const App = {
     const tempArr = [];
     console.log("Fetching search history");
     try {
-      const response = await getFromBin(config.urlSearchHistoryBin);
+      const response = await getFromBin(urlSearchHistoryBin);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -194,7 +195,10 @@ function addFavorite(imdbID) {
 async function pushFavorites() {
   console.log("Pushing favorites");
   try {
-    const response = await putToBin(config.urlBin, App.listOfFavorites);
+    const response = await putToBin(
+      config.urlFavoritesBin,
+      App.listOfFavorites
+    );
     if (!response.ok) {
       throw new Error(response.statusText);
     }
@@ -210,10 +214,7 @@ const debouncePushHistory = debounce(() => pushHistory(), 1000);
 async function pushHistory() {
   console.log("Pushing history");
   try {
-    const response = await putToBin(
-      config.urlSearchHistoryBin,
-      App.listOfSearchHits
-    );
+    const response = await putToBin(urlSearchHistoryBin, App.listOfSearchHits);
     if (!response.ok) {
       throw new Error(response.statusText);
     }
