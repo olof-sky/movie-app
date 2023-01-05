@@ -164,5 +164,5 @@ function isScrolledBottom() {
 }
 
 function getRandomNum(roof) {
-  return Math.random() * roof - 1;
+  return Math.floor(Math.random() * roof);
 }
