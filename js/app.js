@@ -1,7 +1,7 @@
 console.log("Application is live");
 
 const urlMovies = "http://www.omdbapi.com/?";
-const accessKey = "17cd5093";
+const accessKey = "";
 let activeNav = "movies";
 let searchWord = "";
 let page = 1;
