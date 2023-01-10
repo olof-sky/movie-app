@@ -1,5 +1,10 @@
 console.log("Application is live");
 
+const config = {
+  urlMovies: "http://www.omdbapi.com/?",
+  apiKeyMovies: "17cd5093",
+};
+
 const urlMovies = config.urlMovies;
 const accessKey = config.apiKeyMovies;
 let activeNav = "movies";
