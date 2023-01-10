@@ -2,9 +2,6 @@ console.log("Application is live");
 
 const urlMovies = config.urlMovies;
 const accessKey = config.apiKeyMovies;
-const urlFavoritesBin = config.urlFavoritesBin;
-const urlSearchHistoryBin = config.urlSearchHistoryBin;
-const masterKeyBin = config.masterKeyBin;
 let activeNav = "movies";
 let searchWord = "";
 let page = 1;
@@ -47,7 +44,6 @@ const App = {
         });
       }
       this.listOfMovies.push(tempArr);
-      debouncePushHistory();
       setLoading(false);
     } catch (err) {
       console.log("Error: ", err);
@@ -60,14 +56,11 @@ const App = {
     resetMovieList();
     console.log("Fetching favorites");
     try {
-      const response = await getFromBin(urlFavoritesBin);
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      const data = await response.json();
+      const response = localStorage.getItem("favorites");
+      const data = await JSON.parse(response);
       console.log("Favorites::", data);
       ifFavoritesEmptyShowError(data);
-      data.record.forEach((imdbID) => {
+      data.forEach((imdbID) => {
         // Favorites can be an empty object
         if (typeof imdbID == "string") {
           this.listOfFavorites.push(imdbID);
@@ -85,6 +78,7 @@ const App = {
       if (activeNav == "favorites") {
         setErrorText("noFavorites");
       }
+      throw new Error(err);
     }
   },
   async createFavorite(id, favoriteBtn) {
@@ -97,33 +91,10 @@ const App = {
     const movieIndex = this.listOfFavorites.findIndex((imdbID) => imdbID == id);
     this.listOfFavorites.splice(movieIndex, 1);
     if (this.listOfFavorites.length < 1) {
-      this.listOfFavorites = [{}];
+      this.listOfFavorites = [];
     }
     favoriteBtn.textContent = "Add to favorites";
     await pushFavorites();
-  },
-  async fetchSearchHits() {
-    setLoading(true);
-    this.listOfSearchHits = [];
-    const tempArr = [];
-    console.log("Fetching search history");
-    try {
-      const response = await getFromBin(urlSearchHistoryBin);
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      setLoading(false);
-      const data = await response.json();
-      console.log("Records::", data);
-      data.record.forEach((imdbID) => {
-        if (imdbID !== "undefined" || imdbID) {
-          tempArr.push(imdbID);
-        }
-      });
-      this.listOfSearchHits.push(...tempArr);
-    } catch (err) {
-      console.log("Error: ", err);
-    }
   },
   render() {
     this.fetchSearchHits();
@@ -168,7 +139,6 @@ async function fetchDataAndCreateCard(movieImdbID) {
     const isValid = validateGenreAndType(movieData.Genre, movieData.Type);
     if (movieData && isValid) {
       App.listOfMovies.push(movieData);
-      addMovieToHistory(movieData);
       renderMovieCard(movieData, isActive);
     }
   } catch (err) {
@@ -183,39 +153,13 @@ function addFavorite(imdbID) {
 async function pushFavorites() {
   console.log("Pushing favorites");
   try {
-    const response = await putToBin(
-      config.urlFavoritesBin,
-      App.listOfFavorites
-    );
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    const data = await response.json();
+    localStorage.setItem("favorites", JSON.stringify(App.listOfFavorites));
+    const data = await JSON.parse(localStorage.getItem("favorites"));
     ifFavoritesEmptyShowError(data);
     console.log("Favorites::", data);
   } catch (err) {
     console.log("Error: ", err);
-  }
-}
-
-const debouncePushHistory = debounce(() => pushHistory(), 1000);
-async function pushHistory() {
-  console.log("Pushing history");
-  try {
-    const response = await putToBin(urlSearchHistoryBin, App.listOfSearchHits);
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
-    const data = await response.json();
-    console.log("History::", data);
-  } catch (err) {
-    console.log("Error: ", err);
-  }
-}
-
-function addMovieToHistory(movie) {
-  if (!movieInHistory(movie.imdbID)) {
-    App.listOfSearchHits.push(movie.imdbID);
+    throw new Error(err);
   }
 }
 

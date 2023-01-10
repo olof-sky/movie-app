@@ -24,27 +24,6 @@ function getMoreResults() {
   App.fetchMovies();
 }
 
-async function getFromBin(url) {
-  return await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-type": "application/json",
-      "X-Master-Key": config.masterKeyBin,
-    },
-  });
-}
-
-async function putToBin(url, list) {
-  return await fetch(url, {
-    method: "PUT",
-    headers: {
-      "Content-type": "application/json",
-      "X-Master-Key": config.masterKeyBin,
-    },
-    body: JSON.stringify(list),
-  });
-}
-
 async function fetchFullMovieDataById(id) {
   try {
     const response = await fetch(
@@ -133,10 +112,6 @@ function searchBarVisible(visible) {
     : App.elements.searchSection.classList.add("hidden");
 }
 
-function movieInHistory(id) {
-  return App.listOfSearchHits.filter((movieId) => movieId == id).length > 0;
-}
-
 function isFavorite(id) {
   if (App.listOfFavorites.find((imdbID) => imdbID == id)) {
     return true;
@@ -144,7 +119,7 @@ function isFavorite(id) {
 }
 
 function ifFavoritesEmptyShowError(data) {
-  if (data.record.length < 2 && Object.keys(data.record[0]).length < 1) {
+  if (data.length < 2 && Object.keys(data[0]).length < 1) {
     if (activeNav == "favorites") {
       setErrorText("noFavorites");
       throw new FavoritesEmptyError();
