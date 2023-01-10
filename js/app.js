@@ -96,9 +96,6 @@ const App = {
     favoriteBtn.textContent = "Add to favorites";
     await pushFavorites();
   },
-  render() {
-    this.fetchSearchHits();
-  },
 };
 
 const debounceInitSearch = debounce(() => initSearch(), 300);
@@ -241,5 +238,3 @@ App.elements.navButtons.forEach((button) => {
     navRoute(button.name);
   });
 });
-
-App.render();
